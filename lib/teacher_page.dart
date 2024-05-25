@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -11,6 +12,14 @@ class _TeacherPageState extends State<TeacherPage> {
   TextEditingController _quizTitleController = TextEditingController();
   List<Question> _questions = [];
 
+  String getBaseUrl() {
+    if (Platform.isAndroid) {
+      return 'http://10.0.2.2:8080';
+    } else {
+      return 'http://localhost:8080';
+    }
+  }
+
   Future<void> _createQuiz() async {
     final quiz = {
       'title': _quizTitleController.text,
@@ -19,13 +28,14 @@ class _TeacherPageState extends State<TeacherPage> {
 
     try {
       await http.post(
-        Uri.parse('http://localhost:8080/api/quizzes'),
+        Uri.parse('${getBaseUrl()}/api/quizzes'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode(quiz),
       );
       _showSuccessDialog('Quiz created successfully!');
     } catch (error) {
       // Handle error
+      _showErrorDialog('Failed to create quiz. Please try again.');
     }
   }
 
@@ -41,6 +51,26 @@ class _TeacherPageState extends State<TeacherPage> {
       builder: (context) {
         return AlertDialog(
           title: Text('Success'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Error'),
           content: Text(message),
           actions: [
             TextButton(

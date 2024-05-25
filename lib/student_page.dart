@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -16,16 +17,45 @@ class _StudentPageState extends State<StudentPage> {
     _fetchQuizzes();
   }
 
+  String getBaseUrl() {
+    if (Platform.isAndroid) {
+      return 'http://10.0.2.2:8080';
+    } else {
+      return 'http://localhost:8080';
+    }
+  }
+
   Future<void> _fetchQuizzes() async {
     try {
-      final response = await http.get(Uri.parse('http://localhost:8080/api/quizzes'));
+      final response = await http.get(Uri.parse('${getBaseUrl()}/api/quizzes'));
       final quizzes = json.decode(response.body);
       setState(() {
         _quizzes = quizzes;
       });
     } catch (error) {
       // Handle error
+      _showErrorDialog('Failed to load quizzes. Please try again.');
     }
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Error'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _navigateToQuiz(BuildContext context, dynamic quiz) {

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -10,6 +11,14 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   TextEditingController _usernameController = TextEditingController();
 
+  String getBaseUrl() {
+    if (Platform.isAndroid) {
+      return 'http://10.0.2.2:8080';
+    } else {
+      return 'http://localhost:8080';
+    }
+  }
+
   Future<void> _handleLogin() async {
     final username = _usernameController.text;
 
@@ -20,7 +29,7 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     try {
-      final response = await http.get(Uri.parse('http://localhost:8080/api/users/$username'));
+      final response = await http.get(Uri.parse('${getBaseUrl()}/api/users/$username'));
       final user = json.decode(response.body);
       if (user['role'] == 'teacher') {
         _showSuccessDialog('Logged in successfully as a Teacher', '/teacher');

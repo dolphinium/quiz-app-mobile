@@ -12,19 +12,68 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _handleLogin() async {
     final username = _usernameController.text;
+
+    // Validate the username
+    if (username != 'test_student' && username != 'test_teacher') {
+      _showErrorDialog('Invalid username');
+      return;
+    }
+
     try {
       final response = await http.get(Uri.parse('http://localhost:8080/api/users/$username'));
       final user = json.decode(response.body);
       if (user['role'] == 'teacher') {
+        _showSuccessDialog('Logged in successfully as a Teacher');
         Navigator.pushNamed(context, '/teacher');
       } else if (user['role'] == 'student') {
+        _showSuccessDialog('Logged in successfully as a Student');
         Navigator.pushNamed(context, '/student');
       } else {
         // Handle other roles if needed
       }
     } catch (error) {
-      // Handle error (e.g., user not found)
+      _showErrorDialog('Login failed. Please try again.');
     }
+  }
+
+  void _showSuccessDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Success'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Error'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override

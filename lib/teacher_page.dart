@@ -23,7 +23,7 @@ class _TeacherPageState extends State<TeacherPage> {
         headers: {'Content-Type': 'application/json'},
         body: json.encode(quiz),
       );
-      // Handle success
+      _showSuccessDialog('Quiz created successfully!');
     } catch (error) {
       // Handle error
     }
@@ -33,6 +33,26 @@ class _TeacherPageState extends State<TeacherPage> {
     setState(() {
       _questions.add(Question());
     });
+  }
+
+  void _showSuccessDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Success'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -105,14 +125,21 @@ class Answer {
   }
 }
 
-class QuestionWidget extends StatelessWidget {
+class QuestionWidget extends StatefulWidget {
   final Question question;
   final VoidCallback onRemove;
 
   QuestionWidget({required this.question, required this.onRemove});
 
+  @override
+  _QuestionWidgetState createState() => _QuestionWidgetState();
+}
+
+class _QuestionWidgetState extends State<QuestionWidget> {
   void _addAnswer() {
-    question.answers.add(Answer());
+    setState(() {
+      widget.question.answers.add(Answer());
+    });
   }
 
   @override
@@ -124,15 +151,15 @@ class QuestionWidget extends StatelessWidget {
         child: Column(
           children: [
             TextField(
-              controller: question.textController,
+              controller: widget.question.textController,
               decoration: InputDecoration(labelText: 'Question'),
             ),
             SizedBox(height: 10),
             ListView.builder(
               shrinkWrap: true,
-              itemCount: question.answers.length,
+              itemCount: widget.question.answers.length,
               itemBuilder: (context, index) {
-                return AnswerWidget(answer: question.answers[index]);
+                return AnswerWidget(answer: widget.question.answers[index]);
               },
             ),
             ElevatedButton(
@@ -141,7 +168,7 @@ class QuestionWidget extends StatelessWidget {
             ),
             SizedBox(height: 10),
             ElevatedButton(
-              onPressed: onRemove,
+              onPressed: widget.onRemove,
               child: Text('Remove Question'),
               style: ElevatedButton.styleFrom(primary: Colors.red),
             ),

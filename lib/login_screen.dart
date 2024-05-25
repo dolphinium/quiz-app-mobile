@@ -23,11 +23,9 @@ class _LoginScreenState extends State<LoginScreen> {
       final response = await http.get(Uri.parse('http://localhost:8080/api/users/$username'));
       final user = json.decode(response.body);
       if (user['role'] == 'teacher') {
-        _showSuccessDialog('Logged in successfully as a Teacher');
-        Navigator.pushNamed(context, '/teacher');
+        _showSuccessDialog('Logged in successfully as a Teacher', '/teacher');
       } else if (user['role'] == 'student') {
-        _showSuccessDialog('Logged in successfully as a Student');
-        Navigator.pushNamed(context, '/student');
+        _showSuccessDialog('Logged in successfully as a Student', '/student');
       } else {
         // Handle other roles if needed
       }
@@ -36,7 +34,7 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  void _showSuccessDialog(String message) {
+  void _showSuccessDialog(String message, String route) {
     showDialog(
       context: context,
       builder: (context) {
@@ -47,6 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
+                Navigator.pushNamed(context, route);
               },
               child: Text('OK'),
             ),
